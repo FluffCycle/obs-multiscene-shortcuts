@@ -7,51 +7,66 @@ It connects to OBS over WebSocket. The main canvas switches with
 `SetCurrentProgramScene`, and the vertical canvas switches with the plugin's
 `aitum-vertical-canvas` / `switch_scene` vendor request.
 
-## Setup
+## Install
 
 1. In OBS, open **Tools > WebSocket Server Settings** and check **Enable WebSocket server** (port 4455).
-2. Install the dependency: `pip install --user obsws-python`
-3. Put the script on your PATH and create a config:
+2. Install [pipx](https://pipx.pypa.io) and PySide6 (Qt for Python, used by the
+   config editor) from your distro:
    ```sh
-   ln -s "$PWD/obs-multiscene" ~/.local/bin/obs-multiscene
-   mkdir -p ~/.config/obs-multiscene
-   cp config.example.toml ~/.config/obs-multiscene/config.toml
+   sudo dnf install pipx python3-pyside6                # Fedora
+   sudo apt install pipx python3-pyside6.qtwidgets      # Debian/Ubuntu
    ```
-4. Run `obs-multiscene scenes` to see the exact scene names, then edit the presets in the config.
-   Or skip the `cp` in step 3 and this step, and use the GUI editor below.
+3. Install obs-multiscene:
+   ```sh
+   pipx install --system-site-packages git+https://github.com/FluffCycle/obs-multiscene-shortcuts.git
+   ```
+   This puts the `obs-multiscene` and `obs-multiscene-config` commands in
+   `~/.local/bin` and installs their other dependencies automatically.
+   `--system-site-packages` lets the editor use your distro's PySide6, which
+   uses the system Qt and so matches your Plasma theme.
+4. Optionally, add the config editor to your app launcher (it shows up as
+   **OBS Multiscene Config**):
+   ```sh
+   obs-multiscene-config --install-desktop-entry
+   ```
 
-## Editing presets with the GUI
+If you'd rather not install PySide6 from your distro, use
+`pipx install 'obs-multiscene[gui] @ git+https://github.com/FluffCycle/obs-multiscene-shortcuts.git'`
+instead. That pulls PySide6 from PyPI, which brings its own copy of Qt, so the
+editor works but won't pick up the Breeze style.
+
+To update, run the install command again with `--force`. To uninstall:
 
 ```sh
-ln -s "$PWD/obs-multiscene-config" ~/.local/bin/obs-multiscene-config
-obs-multiscene-config
+obs-multiscene-config --remove-desktop-entry
+pipx uninstall obs-multiscene
 ```
 
-To add it to the app launcher (it shows up as **OBS Multiscene Config**), install
-the `.desktop` file with the script's full path filled in:
+From a clone, `pipx install --system-site-packages .` installs your local copy
+(add `-e` so edits take effect without reinstalling).
 
-```sh
-mkdir -p ~/.local/share/applications
-sed "s|^Exec=.*|Exec=$PWD/obs-multiscene-config|" obs-multiscene-config.desktop \
-  > ~/.local/share/applications/obs-multiscene-config.desktop
-```
+## Creating presets
+
+Run `obs-multiscene-config`, or open **OBS Multiscene Config** from the app
+launcher.
 
 If there's no config file yet, it asks for the WebSocket connection details and
 creates one. Then it connects to OBS and lists your presets. To make a preset,
 click **New**, give it a name, and pick a main scene and/or a vertical scene from
 the scenes in OBS. Set a canvas to *(leave unchanged)* to leave that key out of
 the preset. Each change is written to the config file as soon as you click
-**Save preset** or **Delete**.
+**Save Preset** or **Delete**.
 
 If it can't connect, it tells you whether OBS isn't running or whether the
 connection details look wrong, and lets you fix them.
 
-The GUI rewrites the config file, so comments you added by hand are replaced
-with the standard ones. It needs PySide6 (Qt for Python). Install it from your distro so it uses the
-system Qt and matches your Plasma theme: `sudo dnf install python3-pyside6` on
-Fedora, `sudo apt install python3-pyside6.qtwidgets` on Debian/Ubuntu. A
-`pip install pyside6` copy also works but brings its own Qt, so it won't pick up
-the Breeze style.
+The editor also shows the `obs-multiscene switch …` command for each preset,
+ready to paste into a shortcut (see below).
+
+You can also edit the config by hand: copy `config.example.toml` to
+`~/.config/obs-multiscene/config.toml` and use `obs-multiscene scenes` to get
+the exact scene names. Note that the editor rewrites the file when it saves, so
+comments you add by hand are replaced with the standard ones.
 
 ## Usage
 

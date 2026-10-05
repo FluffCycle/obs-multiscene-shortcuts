@@ -14,3 +14,8 @@ venv/
 *.swp
 *~
 .DS_Store
+
+# Packaging
+build/
+dist/
+*.egg-info/

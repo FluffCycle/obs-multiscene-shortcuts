@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "obs-multiscene"
+version = "0.1.0"
+description = "Switch the OBS main canvas and the Aitum Vertical Canvas together from one keyboard shortcut"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "obsws-python",
+    "websocket-client",
+]
+
+[project.optional-dependencies]
+# Prefer your distro's PySide6 package so the editor matches your desktop theme (see README).
+gui = ["PySide6"]
+
+[project.scripts]
+obs-multiscene = "obs_multiscene.cli:main"
+
+[project.gui-scripts]
+obs-multiscene-config = "obs_multiscene.gui:main"
+
+[tool.setuptools]
+packages = ["obs_multiscene"]
+
+[tool.setuptools.package-data]
+obs_multiscene = ["*.desktop"]

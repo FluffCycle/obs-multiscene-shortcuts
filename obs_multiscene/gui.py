@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Small GUI for creating and editing the obs-multiscene config file.
 
 It reads scene names straight from OBS, so presets can be built by picking
@@ -6,43 +5,50 @@ scenes instead of typing them. The config format is the same one the
 `obs-multiscene` command reads.
 """
 
-import importlib.machinery
-import importlib.util
+import argparse
+import importlib.resources
 import logging
 import os
 import re
 import shutil
 import socket
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import (
-    QApplication,
-    QComboBox,
-    QFormLayout,
-    QGroupBox,
-    QHBoxLayout,
-    QHeaderView,
-    QLabel,
-    QLineEdit,
-    QMessageBox,
-    QPushButton,
-    QSpinBox,
-    QStackedWidget,
-    QTreeWidget,
-    QTreeWidgetItem,
-    QVBoxLayout,
-    QWidget,
-)
+try:
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QIcon
+    from PySide6.QtWidgets import (
+        QApplication,
+        QComboBox,
+        QFormLayout,
+        QGroupBox,
+        QHBoxLayout,
+        QHeaderView,
+        QLabel,
+        QLineEdit,
+        QMessageBox,
+        QPushButton,
+        QSpinBox,
+        QStackedWidget,
+        QTreeWidget,
+        QTreeWidgetItem,
+        QVBoxLayout,
+        QWidget,
+    )
+except ImportError:
+    sys.exit(
+        "obs-multiscene-config needs PySide6 (Qt for Python).\n"
+        "Install it from your distro so it matches your desktop theme "
+        "(Fedora: python3-pyside6, Debian/Ubuntu: python3-pyside6.qtwidgets),\n"
+        "or reinstall obs-multiscene with its 'gui' extra (see the README)."
+    )
 from websocket import WebSocketAddressException, WebSocketConnectionClosedException
 
-# Reuse the CLI's config path and OBS helpers so both tools behave identically.
-_loader = importlib.machinery.SourceFileLoader("obs_multiscene", str(Path(__file__).resolve().parent / "obs-multiscene"))
-cli = importlib.util.module_from_spec(importlib.util.spec_from_loader(_loader.name, _loader))
-_loader.exec_module(cli)
+from obs_multiscene import cli
+
 obs = cli.obs
 
 UNCHANGED = "(leave unchanged)"
@@ -489,7 +495,47 @@ class App(QStackedWidget):
         self.setCurrentWidget(self.presets_page)
 
 
+# --- Desktop entry ---------------------------------------------------------
+
+DESKTOP_ID = "obs-multiscene-config"
+
+
+def desktop_entry_path():
+    data_home = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
+    return data_home / "applications" / f"{DESKTOP_ID}.desktop"
+
+
+def install_desktop_entry():
+    # Launchers may not have ~/.local/bin on PATH, so point Exec at this command's full path.
+    command = shutil.which(DESKTOP_ID) or os.path.abspath(sys.argv[0])
+    template = importlib.resources.files(__package__).joinpath(f"{DESKTOP_ID}.desktop").read_text()
+    entry = re.sub(r"^Exec=.*$", f"Exec={command}", template, flags=re.M)
+    path = desktop_entry_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(entry)
+    print(f"Installed {path}")
+
+
+def remove_desktop_entry():
+    path = desktop_entry_path()
+    if path.exists():
+        path.unlink()
+        print(f"Removed {path}")
+    else:
+        print(f"Nothing to remove at {path}")
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    entry = parser.add_mutually_exclusive_group()
+    entry.add_argument("--install-desktop-entry", action="store_true", help="add this editor to the app launcher")
+    entry.add_argument("--remove-desktop-entry", action="store_true", help="remove it from the app launcher")
+    args = parser.parse_args()
+    if args.install_desktop_entry:
+        return install_desktop_entry()
+    if args.remove_desktop_entry:
+        return remove_desktop_entry()
+
     logging.getLogger("obsws_python").setLevel(logging.CRITICAL + 1)  # we report errors ourselves
     qt_app = QApplication([])
     qt_app.setApplicationName("obs-multiscene-config")

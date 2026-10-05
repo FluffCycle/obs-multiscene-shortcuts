@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Switch the OBS main canvas and the Aitum Vertical canvas together.
 
 Wayland doesn't let OBS see global hotkeys reliably, and OBS won't let one
