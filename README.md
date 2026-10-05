@@ -18,6 +18,31 @@ It connects to OBS over WebSocket. The main canvas switches with
    cp config.example.toml ~/.config/obs-multiscene/config.toml
    ```
 4. Run `obs-multiscene scenes` to see the exact scene names, then edit the presets in the config.
+   Or skip the `cp` in step 3 and this step, and use the GUI editor below.
+
+## Editing presets with the GUI
+
+```sh
+ln -s "$PWD/obs-multiscene-config" ~/.local/bin/obs-multiscene-config
+obs-multiscene-config
+```
+
+If there's no config file yet, it asks for the WebSocket connection details and
+creates one. Then it connects to OBS and lists your presets. To make a preset,
+click **New**, give it a name, and pick a main scene and/or a vertical scene from
+the scenes in OBS. Set a canvas to *(leave unchanged)* to leave that key out of
+the preset. Each change is written to the config file as soon as you click
+**Save preset** or **Delete**.
+
+If it can't connect, it tells you whether OBS isn't running or whether the
+connection details look wrong, and lets you fix them.
+
+The GUI rewrites the config file, so comments you added by hand are replaced
+with the standard ones. It needs PySide6 (Qt for Python). Install it from your distro so it uses the
+system Qt and matches your Plasma theme: `sudo dnf install python3-pyside6` on
+Fedora, `sudo apt install python3-pyside6.qtwidgets` on Debian/Ubuntu. A
+`pip install pyside6` copy also works but brings its own Qt, so it won't pick up
+the Breeze style.
 
 ## Usage
 
