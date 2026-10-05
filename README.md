@@ -27,6 +27,15 @@ ln -s "$PWD/obs-multiscene-config" ~/.local/bin/obs-multiscene-config
 obs-multiscene-config
 ```
 
+To add it to the app launcher (it shows up as **OBS Multiscene Config**), install
+the `.desktop` file with the script's full path filled in:
+
+```sh
+mkdir -p ~/.local/share/applications
+sed "s|^Exec=.*|Exec=$PWD/obs-multiscene-config|" obs-multiscene-config.desktop \
+  > ~/.local/share/applications/obs-multiscene-config.desktop
+```
+
 If there's no config file yet, it asks for the WebSocket connection details and
 creates one. Then it connects to OBS and lists your presets. To make a preset,
 click **New**, give it a name, and pick a main scene and/or a vertical scene from

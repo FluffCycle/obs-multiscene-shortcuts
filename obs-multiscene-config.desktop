@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=OBS Multiscene Config
+GenericName=Scene Shortcut Editor
+Comment=Create presets that switch the OBS main and vertical canvases together
+Exec=obs-multiscene-config
+Icon=preferences-desktop-keyboard-shortcut
+Terminal=false
+Categories=AudioVideo;Video;Utility;
+Keywords=obs;scene;vertical;canvas;shortcut;hotkey;stream;
