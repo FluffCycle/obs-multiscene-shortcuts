@@ -451,7 +451,7 @@ class App(QStackedWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("OBS Multiscene Config")
-        self.setWindowIcon(QIcon.fromTheme("com.obsproject.Studio", icon("preferences-system")))
+        self.setWindowIcon(QIcon.fromTheme("preferences-desktop-keyboard-shortcut", icon("input-keyboard")))
         self.resize(640, 520)
         self.config_data = cli.load_config()
         self.config_data.setdefault("connection", {})
