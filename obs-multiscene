@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+"""Switch the OBS main canvas and the Aitum Vertical canvas together.
+
+Wayland doesn't let OBS see global hotkeys reliably, and OBS won't let one
+hotkey drive both canvases anyway. Bind a desktop shortcut (KDE System Settings
+-> Shortcuts) to a command like `obs-multiscene switch gaming` instead.
+"""
+
+import argparse
+import logging
+import os
+import subprocess
+import sys
+import tomllib
+from pathlib import Path
+
+import obsws_python as obs
+
+VENDOR = "aitum-vertical-canvas"
+CONFIG_PATH = Path(
+    os.environ.get("OBS_MULTISCENE_CONFIG")
+    or Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "obs-multiscene" / "config.toml"
+)
+
+
+def notify(message, urgent=False):
+    """Print, and show a desktop notification since hotkeys have no terminal."""
+    print(message, file=sys.stderr if urgent else sys.stdout)
+    if not sys.stdout.isatty():
+        try:
+            subprocess.run(
+                ["notify-send", "-a", "OBS Multiscene", "-u", "critical" if urgent else "low", "OBS Multiscene", message],
+                timeout=2,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            pass
+
+
+def load_config():
+    if not CONFIG_PATH.exists():
+        return {}
+    with CONFIG_PATH.open("rb") as f:
+        return tomllib.load(f)
+
+
+def connect(config):
+    conn = config.get("connection", {})
+    return obs.ReqClient(
+        host=conn.get("host", "localhost"),
+        port=conn.get("port", 4455),
+        password=os.environ.get("OBS_WS_PASSWORD", conn.get("password", "")),
+        timeout=conn.get("timeout", 3),
+    )
+
+
+def main_scenes(client):
+    return [s["sceneName"] for s in client.get_scene_list().scenes]
+
+
+def vertical_scenes(client):
+    data = client.call_vendor_request(VENDOR, "get_scenes").response_data
+    return [s["name"] for s in data.get("scenes", [])]
+
+
+def switch(client, main=None, vertical=None):
+    # The vertical plugin reports success even for unknown scenes, so check first.
+    if main and main not in main_scenes(client):
+        raise ValueError(f"main scene not found: {main!r}")
+    if vertical and vertical not in vertical_scenes(client):
+        raise ValueError(f"vertical scene not found: {vertical!r}")
+
+    if main:
+        client.set_current_program_scene(main)
+    if vertical:
+        data = client.call_vendor_request(VENDOR, "switch_scene", {"scene": vertical}).response_data
+        if not data.get("success"):
+            raise RuntimeError(f"vertical switch failed: {data.get('error', data)}")
+
+
+def cmd_switch(args, config):
+    if args.preset:
+        presets = config.get("presets", {})
+        if args.preset not in presets:
+            raise ValueError(f"unknown preset {args.preset!r} (defined: {', '.join(presets) or 'none'})")
+        preset = presets[args.preset]
+        main, vertical = preset.get("main"), preset.get("vertical")
+    else:
+        main, vertical = args.main, args.vertical
+    if not (main or vertical):
+        raise ValueError("give a preset name, or --main and/or --vertical")
+
+    switch(connect(config), main, vertical)
+    if args.verbose:
+        notify(f"main: {main or '(unchanged)'} | vertical: {vertical or '(unchanged)'}")
+
+
+def cmd_scenes(args, config):
+    client = connect(config)
+    current = client.get_current_program_scene().current_program_scene_name
+    current_v = client.call_vendor_request(VENDOR, "current_scene").response_data.get("scene")
+    print("Main canvas:")
+    for s in main_scenes(client):
+        print(f"  {'*' if s == current else ' '} {s}")
+    print("Vertical canvas:")
+    for s in vertical_scenes(client):
+        print(f"  {'*' if s == current_v else ' '} {s}")
+
+
+def cmd_presets(args, config):
+    presets = config.get("presets", {})
+    if not presets:
+        print(f"No presets defined in {CONFIG_PATH}")
+    for name, p in presets.items():
+        print(f"{name}: main={p.get('main', '-')!r} vertical={p.get('vertical', '-')!r}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p = sub.add_parser("switch", help="switch both canvases (by preset or explicit scene names)")
+    p.add_argument("preset", nargs="?", help="preset name from the config file")
+    p.add_argument("-m", "--main", help="main canvas scene name")
+    p.add_argument("-v", "--vertical", help="vertical canvas scene name")
+    p.add_argument("--verbose", action="store_true", help="also notify on success")
+    p.set_defaults(func=cmd_switch)
+
+    sub.add_parser("scenes", help="list scenes on both canvases (* = live)").set_defaults(func=cmd_scenes)
+    sub.add_parser("presets", help="list presets from the config file").set_defaults(func=cmd_presets)
+
+    args = parser.parse_args()
+    logging.getLogger("obsws_python").setLevel(logging.CRITICAL + 1)  # we report errors ourselves
+    try:
+        args.func(args, load_config())
+    except ConnectionRefusedError:
+        notify("Can't reach OBS. Is it running with WebSocket server enabled (Tools > WebSocket Server Settings)?", urgent=True)
+        sys.exit(1)
+    except Exception as e:
+        notify(f"Error: {e}", urgent=True)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

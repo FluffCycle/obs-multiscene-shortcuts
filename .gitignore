@@ -1,0 +1,16 @@
+# Real configs can hold the OBS WebSocket password; only the example is tracked
+config.toml
+!config.example.toml
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store

@@ -1,0 +1,24 @@
+# Copy to ~/.config/obs-multiscene/config.toml
+# Scene names must match OBS exactly (run `obs-multiscene scenes` to see them).
+
+[connection]
+host = "localhost"
+port = 4455
+# Only needed if "Enable Authentication" is on in Tools > WebSocket Server Settings.
+# You can also set the OBS_WS_PASSWORD environment variable instead.
+password = ""
+
+# Each preset switches the main canvas and the vertical canvas together.
+# Leave out either key to leave that canvas unchanged.
+
+[presets.starting]
+main = "Starting Soon"
+vertical = "Starting Soon (Vertical)"
+
+[presets.gameplay]
+main = "Gameplay"
+vertical = "Gameplay (Vertical)"
+
+[presets.brb]
+main = "BRB"
+vertical = "BRB (Vertical)"
