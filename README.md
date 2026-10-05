@@ -10,12 +10,14 @@ It connects to OBS over WebSocket. The main canvas switches with
 ## Install
 
 1. In OBS, open **Tools > WebSocket Server Settings** and check **Enable WebSocket server** (port 4455).
+
 2. Install [pipx](https://pipx.pypa.io) and PySide6 (Qt for Python, used by the
    config editor) from your distro:
    ```sh
    sudo dnf install pipx python3-pyside6                # Fedora
    sudo apt install pipx python3-pyside6.qtwidgets      # Debian/Ubuntu
    ```
+
 3. Install obs-multiscene-shortcuts:
    ```sh
    pipx install --system-site-packages git+https://github.com/FluffCycle/obs-multiscene-shortcuts.git
@@ -24,6 +26,7 @@ It connects to OBS over WebSocket. The main canvas switches with
    `~/.local/bin` and installs their other dependencies automatically.
    `--system-site-packages` lets the editor use your distro's PySide6, which
    uses the system Qt and so matches your Plasma theme.
+
 4. Optionally, add the config editor to your app launcher (it shows up as
    **OBS Multiscene Shortcuts**):
    ```sh
@@ -35,7 +38,9 @@ If you'd rather not install PySide6 from your distro, use
 instead. That pulls PySide6 from PyPI, which brings its own copy of Qt, so the
 editor works but won't pick up the Breeze style.
 
-To update, run the install command again with `--force`. To uninstall:
+To **update**, run the install command again with `--force`.
+
+To **uninstall**:
 
 ```sh
 obs-multiscene-config --remove-desktop-entry
