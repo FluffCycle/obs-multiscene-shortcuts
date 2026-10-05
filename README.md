@@ -90,3 +90,11 @@ switch succeeds.
 
 Repeat for each preset. Desktop shortcuts are global, so they work while a game
 has focus.
+
+## License
+
+MIT; see [LICENSE](LICENSE). The `obsws-python` dependency is GPL-3.0 and is
+installed separately from PyPI, not included in this repository.
+
+Not affiliated with or endorsed by the OBS Project or Aitum. OBS and OBS Studio
+are trademarks of the OBS Project.
