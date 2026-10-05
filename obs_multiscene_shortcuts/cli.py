@@ -28,7 +28,7 @@ def notify(message, urgent=False):
     if not sys.stdout.isatty():
         try:
             subprocess.run(
-                ["notify-send", "-a", "OBS Multiscene", "-u", "critical" if urgent else "low", "OBS Multiscene", message],
+                ["notify-send", "-a", "OBS Multiscene Shortcuts", "-u", "critical" if urgent else "low", "OBS Multiscene Shortcuts", message],
                 timeout=2,
             )
         except (OSError, subprocess.TimeoutExpired):

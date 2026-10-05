@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=OBS Multiscene Config
+Name=OBS Multiscene Shortcuts
 GenericName=Scene Shortcut Editor
 Comment=Create presets that switch the OBS main and vertical canvases together
 Exec=obs-multiscene-config

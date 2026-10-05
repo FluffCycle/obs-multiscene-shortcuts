@@ -1,4 +1,4 @@
-# obs-multiscene
+# obs-multiscene-shortcuts
 
 Switch the OBS main canvas and the Aitum Vertical Canvas together from one
 keyboard shortcut. This works on Wayland, where OBS's own hotkeys don't.
@@ -16,7 +16,7 @@ It connects to OBS over WebSocket. The main canvas switches with
    sudo dnf install pipx python3-pyside6                # Fedora
    sudo apt install pipx python3-pyside6.qtwidgets      # Debian/Ubuntu
    ```
-3. Install obs-multiscene:
+3. Install obs-multiscene-shortcuts:
    ```sh
    pipx install --system-site-packages git+https://github.com/FluffCycle/obs-multiscene-shortcuts.git
    ```
@@ -25,13 +25,13 @@ It connects to OBS over WebSocket. The main canvas switches with
    `--system-site-packages` lets the editor use your distro's PySide6, which
    uses the system Qt and so matches your Plasma theme.
 4. Optionally, add the config editor to your app launcher (it shows up as
-   **OBS Multiscene Config**):
+   **OBS Multiscene Shortcuts**):
    ```sh
    obs-multiscene-config --install-desktop-entry
    ```
 
 If you'd rather not install PySide6 from your distro, use
-`pipx install 'obs-multiscene[gui] @ git+https://github.com/FluffCycle/obs-multiscene-shortcuts.git'`
+`pipx install 'obs-multiscene-shortcuts[gui] @ git+https://github.com/FluffCycle/obs-multiscene-shortcuts.git'`
 instead. That pulls PySide6 from PyPI, which brings its own copy of Qt, so the
 editor works but won't pick up the Breeze style.
 
@@ -39,7 +39,7 @@ To update, run the install command again with `--force`. To uninstall:
 
 ```sh
 obs-multiscene-config --remove-desktop-entry
-pipx uninstall obs-multiscene
+pipx uninstall obs-multiscene-shortcuts
 ```
 
 From a clone, `pipx install --system-site-packages .` installs your local copy
@@ -47,7 +47,7 @@ From a clone, `pipx install --system-site-packages .` installs your local copy
 
 ## Creating presets
 
-Run `obs-multiscene-config`, or open **OBS Multiscene Config** from the app
+Run `obs-multiscene-config`, or open **OBS Multiscene Shortcuts** from the app
 launcher.
 
 If there's no config file yet, it asks for the WebSocket connection details and

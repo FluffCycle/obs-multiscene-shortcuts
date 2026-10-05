@@ -1,4 +1,4 @@
-"""Small GUI for creating and editing the obs-multiscene config file.
+"""Small GUI for creating and editing the obs-multiscene-shortcuts config file.
 
 It reads scene names straight from OBS, so presets can be built by picking
 scenes instead of typing them. The config format is the same one the
@@ -43,11 +43,11 @@ except ImportError:
         "obs-multiscene-config needs PySide6 (Qt for Python).\n"
         "Install it from your distro so it matches your desktop theme "
         "(Fedora: python3-pyside6, Debian/Ubuntu: python3-pyside6.qtwidgets),\n"
-        "or reinstall obs-multiscene with its 'gui' extra (see the README)."
+        "or reinstall obs-multiscene-shortcuts with its 'gui' extra (see the README)."
     )
 from websocket import WebSocketAddressException, WebSocketConnectionClosedException
 
-from obs_multiscene import cli
+from obs_multiscene_shortcuts import cli
 
 obs = cli.obs
 
@@ -84,7 +84,7 @@ def toml_value(v):
 def save_config(config):
     """Write the config atomically, readable only by the user (it may hold a password)."""
     lines = [
-        "# obs-multiscene config. Edit by hand or with obs-multiscene-config.",
+        "# obs-multiscene-shortcuts config. Edit by hand or with obs-multiscene-config.",
         "# Scene names must match OBS exactly (run `obs-multiscene scenes` to see them).",
         "",
         "[connection]",
@@ -456,7 +456,7 @@ class PresetsPage(QWidget):
 class App(QStackedWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("OBS Multiscene Config")
+        self.setWindowTitle("OBS Multiscene Shortcuts")
         self.setWindowIcon(QIcon.fromTheme("preferences-desktop-keyboard-shortcut", icon("input-keyboard")))
         self.resize(640, 520)
         self.config_data = cli.load_config()
