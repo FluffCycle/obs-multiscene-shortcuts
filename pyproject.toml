@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=77"]
+requires = ["setuptools>=77", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "obs-multiscene-shortcuts"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Switch the OBS main canvas and the Aitum Vertical Canvas together from one keyboard shortcut"
 readme = "README.md"
 license = "MIT"
@@ -33,6 +33,9 @@ obs-multiscene-config = "obs_multiscene_shortcuts.gui:main"
 
 [tool.setuptools]
 packages = ["obs_multiscene_shortcuts"]
+
+[tool.setuptools_scm]
+# Version comes from the latest vX.Y.Z git tag; .git_archival.txt covers source archives.
 
 [tool.setuptools.package-data]
 obs_multiscene_shortcuts = ["*.desktop"]
