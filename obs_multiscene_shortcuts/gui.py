@@ -146,6 +146,11 @@ def describe_failure(exc, conn):
 def fetch_scenes(config):
     """Return (main scenes, vertical scenes or None if the plugin isn't available)."""
     client = cli.connect(config)
+    conn = config["connection"]
+    # cli.connect may have only gotten in with the percent-decoded password; keep that one.
+    if not os.environ.get("OBS_WS_PASSWORD") and client.base_client.password != conn.get("password", ""):
+        conn["password"] = client.base_client.password
+        save_config(config)
     try:
         main = cli.main_scenes(client)
         try:

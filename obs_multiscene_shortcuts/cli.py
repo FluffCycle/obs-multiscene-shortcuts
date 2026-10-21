@@ -12,8 +12,10 @@ import subprocess
 import sys
 import tomllib
 from pathlib import Path
+from urllib.parse import unquote
 
 import obsws_python as obs
+from websocket import WebSocketConnectionClosedException
 
 VENDOR = "aitum-vertical-canvas"
 CONFIG_PATH = Path(
@@ -44,10 +46,24 @@ def load_config():
 
 def connect(config):
     conn = config.get("connection", {})
+    password = os.environ.get("OBS_WS_PASSWORD", conn.get("password", ""))
+    try:
+        return _client(conn, password)
+    except (obs.error.OBSSDKError, WebSocketConnectionClosedException) as e:
+        # OBS's Show Connect Info dialog displays (and copies) the password
+        # percent-encoded, so "a%b" shows as "a%25b". If OBS rejected the
+        # password as given, try it decoded.
+        decoded = unquote(password)
+        if decoded == password or isinstance(e, obs.error.OBSSDKTimeoutError):
+            raise
+        return _client(conn, decoded)
+
+
+def _client(conn, password):
     return obs.ReqClient(
         host=conn.get("host", "localhost"),
         port=conn.get("port", 4455),
-        password=os.environ.get("OBS_WS_PASSWORD", conn.get("password", "")),
+        password=password,
         timeout=conn.get("timeout", 3),
     )
 
